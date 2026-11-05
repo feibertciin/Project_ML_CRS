@@ -1,0 +1,2440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Clasificación Inteligente de Residuos Sólidos — Proyecto de Maestría en IA, UFHEC. Modelos de Machine Learning y Deep Learning para clasificación automática de residuos." />
+  <meta name="author" content="UFHEC — Maestría en Inteligencia Artificial" />
+  <title>Project CRS — Clasificación Inteligente de Residuos Sólidos | UFHEC</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    /* ============================================================
+       CSS RESET & ROOT VARIABLES
+    ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-primary:    #0b1120;
+      --bg-secondary:  #0f1829;
+      --bg-card:       rgba(255,255,255,0.03);
+      --accent-green:  #10b981;
+      --accent-cyan:   #06b6d4;
+      --accent-green2: #34d399;
+      --text-primary:  #f1f5f9;
+      --text-secondary:#94a3b8;
+      --border-subtle: rgba(255,255,255,0.08);
+      --border-green:  rgba(16,185,129,0.3);
+      --border-green-h:rgba(16,185,129,0.8);
+      --shadow-green:  0 0 30px rgba(16,185,129,0.15);
+      --shadow-cyan:   0 0 30px rgba(6,182,212,0.15);
+      --radius-sm:     8px;
+      --radius-md:     14px;
+      --radius-lg:     20px;
+      --radius-xl:     28px;
+      --transition:    all 0.3s cubic-bezier(0.4,0,0.2,1);
+      --font-display:  'Outfit', sans-serif;
+      --font-body:     'Inter', sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    ul, ol {
+      list-style: none;
+    }
+
+    /* ============================================================
+       KEYFRAME ANIMATIONS
+    ============================================================ */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.7; transform: scale(0.95); }
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(16,185,129,0.7); }
+      70%       { transform: scale(1.1); opacity: 0.9; box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-10px); }
+    }
+
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px) translateX(0px); }
+      33%       { transform: translateY(-15px) translateX(8px); }
+      66%       { transform: translateY(-5px) translateX(-5px); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position:  200% center; }
+    }
+
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes counterReveal {
+      from { opacity: 0; transform: scale(0.8) translateY(20px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    @keyframes borderGlow {
+      0%, 100% { border-color: rgba(16,185,129,0.3); box-shadow: 0 0 10px rgba(16,185,129,0.1); }
+      50%       { border-color: rgba(16,185,129,0.7); box-shadow: 0 0 25px rgba(16,185,129,0.3); }
+    }
+
+    /* ============================================================
+       UTILITY CLASSES
+    ============================================================ */
+    .container {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .section-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-green);
+      background: rgba(16,185,129,0.08);
+      border: 1px solid rgba(16,185,129,0.2);
+      padding: 6px 14px;
+      border-radius: 100px;
+      margin-bottom: 20px;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      animation: pulseDot 2s ease-in-out infinite;
+    }
+
+    .accent-line {
+      display: block;
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan));
+      border-radius: 100px;
+      margin: 16px 0 32px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan), var(--accent-green2));
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 4s linear infinite;
+    }
+
+    /* Button styles */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 26px;
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-green), #059669);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(16,185,129,0.35);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #34d399, var(--accent-green));
+      box-shadow: 0 6px 30px rgba(16,185,129,0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-primary);
+      border: 1.5px solid rgba(255,255,255,0.2);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+      background: rgba(16,185,129,0.06);
+      transform: translateY(-2px);
+    }
+
+    .btn-cyan {
+      background: linear-gradient(135deg, var(--accent-cyan), #0891b2);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(6,182,212,0.3);
+    }
+
+    .btn-cyan:hover {
+      box-shadow: 0 6px 30px rgba(6,182,212,0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn-lg {
+      padding: 15px 34px;
+      font-size: 1.05rem;
+      border-radius: var(--radius-lg);
+    }
+
+    /* Glass card */
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      transition: var(--transition);
+    }
+
+    .glass-card:hover {
+      border-color: var(--border-green);
+      box-shadow: var(--shadow-green);
+      transform: translateY(-4px);
+    }
+
+    /* Scroll reveal hidden state */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ============================================================
+       LAYER 1 — NAVBAR
+    ============================================================ */
+    #navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(11,17,32,0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(16,185,129,0.2);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    #navbar.scrolled {
+      background: rgba(11,17,32,0.98);
+      box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 70px;
+      gap: 24px;
+    }
+
+    .nav-logo {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      flex-shrink: 0;
+    }
+
+    .nav-logo-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-logo-icon {
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+
+    .nav-logo-text {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-badge {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      padding-left: 36px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nav-links a {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+    }
+
+    .nav-links a:hover {
+      color: var(--text-primary);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .nav-cta .btn {
+      padding: 9px 18px;
+      font-size: 0.85rem;
+    }
+
+    /* Hamburger */
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: var(--radius-sm);
+      background: none;
+      border: none;
+    }
+
+    .nav-toggle span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--text-primary);
+      border-radius: 2px;
+      transition: var(--transition);
+    }
+
+    /* Mobile nav */
+    .nav-mobile {
+      display: none;
+      flex-direction: column;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-subtle);
+      gap: 4px;
+    }
+
+    .nav-mobile.open {
+      display: flex;
+    }
+
+    .nav-mobile a {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+    }
+
+    .nav-mobile a:hover {
+      color: var(--text-primary);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .nav-mobile-cta {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      padding: 0 12px;
+    }
+
+    .nav-mobile-cta .btn {
+      flex: 1;
+      justify-content: center;
+      padding: 10px 16px;
+    }
+
+    /* ============================================================
+       LAYER 2 — HERO SECTION
+    ============================================================ */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 100px 0 60px;
+      background: var(--bg-primary);
+    }
+
+    /* Radial gradient background */
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(16,185,129,0.12) 0%, transparent 65%),
+        radial-gradient(ellipse 60% 50% at 90% 50%, rgba(6,182,212,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 50% at 10% 80%, rgba(16,185,129,0.06) 0%, transparent 55%);
+      pointer-events: none;
+    }
+
+    /* Grid overlay */
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(16,185,129,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(16,185,129,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    }
+
+    /* Particles */
+    .particles-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(16,185,129,0.6);
+      box-shadow: 0 0 6px rgba(16,185,129,0.8);
+      animation: floatSlow linear infinite alternate;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0 24px;
+      animation: fadeInUp 0.9s ease both;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(16,185,129,0.08);
+      border: 1px solid rgba(16,185,129,0.25);
+      padding: 8px 20px;
+      border-radius: 100px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent-green);
+      letter-spacing: 0.06em;
+      margin-bottom: 32px;
+    }
+
+    .hero-badge .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      animation: pulseDot 2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 7vw, 4.4rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-title .line1 {
+      display: block;
+      color: var(--text-primary);
+    }
+
+    .hero-title .line2 {
+      display: block;
+      background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-cyan) 50%, var(--accent-green2) 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 4s linear infinite;
+    }
+
+    .hero-desc {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto 36px;
+      line-height: 1.75;
+    }
+
+    /* Hero metrics floating */
+    .hero-metrics {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 36px;
+      flex-wrap: wrap;
+    }
+
+    .hero-metric {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 10px 18px;
+      border-radius: 100px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      animation: float 4s ease-in-out infinite;
+      backdrop-filter: blur(8px);
+    }
+
+    .hero-metric:nth-child(1) { animation-delay: 0s; }
+    .hero-metric:nth-child(2) { animation-delay: 0.8s; }
+    .hero-metric:nth-child(3) { animation-delay: 1.6s; }
+
+    .hero-metric .metric-icon {
+      font-size: 1rem;
+    }
+
+    .hero-metric .metric-value {
+      color: var(--accent-green);
+    }
+
+    .hero-metric .metric-label {
+      color: var(--text-secondary);
+    }
+
+    /* Hero CTA buttons */
+    .hero-cta {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 48px;
+      flex-wrap: wrap;
+    }
+
+    /* Tech stack badges */
+    .tech-stack {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tech-stack-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-right: 4px;
+    }
+
+    .tech-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text-secondary);
+      transition: var(--transition);
+    }
+
+    .tech-badge:hover {
+      background: rgba(16,185,129,0.08);
+      border-color: rgba(16,185,129,0.3);
+      color: var(--accent-green);
+    }
+
+    /* ============================================================
+       LAYER 3 — STATS ROW
+    ============================================================ */
+    #stats {
+      padding: 60px 0;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--accent-green);
+      border-radius: var(--radius-md);
+      padding: 28px 24px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent-green), transparent);
+    }
+
+    .stat-card:hover {
+      border-left-color: var(--accent-cyan);
+      background: rgba(255,255,255,0.04);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-green);
+    }
+
+    .stat-card:nth-child(2) { border-left-color: var(--accent-cyan); }
+    .stat-card:nth-child(3) { border-left-color: #a855f7; }
+    .stat-card:nth-child(4) { border-left-color: #f59e0b; }
+
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5vw, 3rem);
+      font-weight: 900;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-number span.counter {
+      display: inline-block;
+    }
+
+    .stat-unit {
+      color: var(--accent-green);
+      font-size: 1.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .stat-desc {
+      font-size: 0.78rem;
+      color: rgba(148,163,184,0.7);
+    }
+
+    /* ============================================================
+       LAYER 4 — PROBLEMA Y JUSTIFICACIÓN
+    ============================================================ */
+    #problema {
+      padding: 100px 0;
+      background: var(--bg-primary);
+    }
+
+    .section-header {
+      margin-bottom: 60px;
+    }
+
+    .problema-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .problema-card {
+      padding: 36px 28px;
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-subtle);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .problema-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+
+    .problema-card:hover {
+      border-color: var(--border-green);
+      box-shadow: var(--shadow-green);
+      transform: translateY(-6px);
+    }
+
+    .problema-card:hover::after {
+      transform: scaleX(1);
+    }
+
+    .card-emoji {
+      font-size: 2.8rem;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 14px;
+    }
+
+    .card-text {
+      font-size: 0.93rem;
+      color: var(--text-secondary);
+      line-height: 1.75;
+    }
+
+    .card-tag {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .tag-warning { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
+    .tag-tech    { background: rgba(16,185,129,0.1); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.2); }
+    .tag-impact  { background: rgba(6,182,212,0.1); color: var(--accent-cyan); border: 1px solid rgba(6,182,212,0.2); }
+
+    /* ============================================================
+       LAYER 5 — CRISP-ML(Q) METHODOLOGY
+    ============================================================ */
+    #metodologia {
+      padding: 100px 0;
+      background: var(--bg-secondary);
+    }
+
+    .crisp-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      position: relative;
+    }
+
+    .crisp-card {
+      padding: 32px 24px;
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border-subtle);
+      position: relative;
+      transition: var(--transition);
+      overflow: hidden;
+    }
+
+    .crisp-card:hover {
+      border-color: var(--border-green);
+      box-shadow: var(--shadow-green);
+      transform: translateY(-6px);
+    }
+
+    .crisp-card:hover .crisp-num {
+      color: var(--accent-green);
+    }
+
+    .crisp-num {
+      font-family: var(--font-display);
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: rgba(255,255,255,0.05);
+      line-height: 1;
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      transition: var(--transition);
+    }
+
+    .crisp-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.2);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+      transition: var(--transition);
+    }
+
+    .crisp-card:hover .crisp-icon {
+      background: rgba(16,185,129,0.2);
+      border-color: rgba(16,185,129,0.4);
+    }
+
+    .crisp-phase {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-green);
+      margin-bottom: 8px;
+    }
+
+    .crisp-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .crisp-desc {
+      font-size: 0.87rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    .crisp-tasks {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .crisp-tasks li {
+      font-size: 0.8rem;
+      color: rgba(148,163,184,0.85);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .crisp-tasks li::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       LAYER 6 — MODEL COMPARISON
+    ============================================================ */
+    #comparativa {
+      padding: 100px 0;
+      background: var(--bg-primary);
+    }
+
+    .models-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .model-card {
+      border-radius: var(--radius-xl);
+      padding: 36px 32px;
+      border: 1px solid var(--border-subtle);
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .model-card-rf {
+      background: linear-gradient(135deg, rgba(16,185,129,0.06) 0%, rgba(6,182,212,0.03) 100%);
+      border-color: rgba(16,185,129,0.2);
+    }
+
+    .model-card-cnn {
+      background: linear-gradient(135deg, rgba(168,85,247,0.06) 0%, rgba(6,182,212,0.03) 100%);
+      border-color: rgba(168,85,247,0.2);
+    }
+
+    .model-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+    .model-card-rf:hover { border-color: var(--border-green); box-shadow: var(--shadow-green); }
+    .model-card-cnn:hover { border-color: rgba(168,85,247,0.4); box-shadow: 0 0 30px rgba(168,85,247,0.15); }
+
+    .model-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .model-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+    }
+
+    .model-icon-rf  { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); }
+    .model-icon-cnn { background: rgba(168,85,247,0.12); border: 1px solid rgba(168,85,247,0.3); }
+
+    .model-label {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 100px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .label-ml  { background: rgba(16,185,129,0.1); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.25); }
+    .label-dl  { background: rgba(168,85,247,0.1); color: #c084fc; border: 1px solid rgba(168,85,247,0.25); }
+    .label-rec { background: rgba(245,158,11,0.1); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
+
+    .model-name {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .model-desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      line-height: 1.65;
+    }
+
+    .model-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .model-metric-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+
+    .model-metric-val {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--accent-green);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .model-card-cnn .model-metric-val { color: #c084fc; }
+
+    .model-metric-lbl {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .model-streamlit-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(255,75,75,0.1);
+      border: 1px solid rgba(255,75,75,0.25);
+      color: #ff4b4b;
+    }
+
+    /* Comparison table */
+    .comparison-table-wrapper {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .comparison-table thead {
+      background: rgba(16,185,129,0.08);
+    }
+
+    .comparison-table th {
+      padding: 16px 20px;
+      text-align: left;
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .comparison-table th:first-child {
+      color: var(--text-secondary);
+    }
+
+    .comparison-table td {
+      padding: 14px 20px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .comparison-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .comparison-table tbody tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+
+    .comparison-table td:first-child {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .comparison-table td .check-green { color: var(--accent-green); }
+    .comparison-table td .check-purple { color: #c084fc; }
+
+    .comparison-table tbody tr:nth-child(even) td {
+      background: rgba(255,255,255,0.01);
+    }
+
+    /* ============================================================
+       LAYER 7 — SIMULADOR CTA
+    ============================================================ */
+    #simulador {
+      padding: 100px 0;
+      background: var(--bg-secondary);
+    }
+
+    .simulator-banner {
+      position: relative;
+      border-radius: var(--radius-xl);
+      padding: 70px 60px;
+      text-align: center;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(6,182,212,0.08) 50%, rgba(16,185,129,0.06) 100%);
+      border: 1px solid rgba(16,185,129,0.25);
+      animation: borderGlow 4s ease-in-out infinite;
+    }
+
+    .simulator-banner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(16,185,129,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .simulator-banner::after {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 30px,
+        rgba(16,185,129,0.015) 30px,
+        rgba(16,185,129,0.015) 60px
+      );
+      pointer-events: none;
+    }
+
+    .simulator-banner-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .simulator-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 900;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+
+    .simulator-desc {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      max-width: 560px;
+      margin: 0 auto 36px;
+      line-height: 1.7;
+    }
+
+    .simulator-cta {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+
+    .simulator-features {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .sim-feature {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .sim-feature i {
+      color: var(--accent-green);
+      font-size: 0.9rem;
+    }
+
+    /* ============================================================
+       LAYER 8 — FOOTER
+    ============================================================ */
+    #footer {
+      background: rgba(5,8,16,0.95);
+      border-top: 1px solid var(--border-subtle);
+      padding: 72px 0 0;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.8fr 1fr 1fr 1fr;
+      gap: 48px;
+      padding-bottom: 56px;
+    }
+
+    .footer-brand .nav-logo {
+      margin-bottom: 20px;
+    }
+
+    .footer-brand-desc {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      max-width: 280px;
+      margin-bottom: 24px;
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 10px;
+    }
+
+    .social-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      transition: var(--transition);
+    }
+
+    .social-btn:hover {
+      background: rgba(16,185,129,0.1);
+      border-color: rgba(16,185,129,0.3);
+      color: var(--accent-green);
+      transform: translateY(-2px);
+    }
+
+    .footer-col-title {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 20px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-links a {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+      padding: 2px 0;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent-green);
+      transform: translateX(4px);
+    }
+
+    .footer-links a i {
+      font-size: 0.75rem;
+      width: 14px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+
+    .footer-links a:hover i {
+      color: var(--accent-green);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid var(--border-subtle);
+      padding: 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-copyright {
+      font-size: 0.82rem;
+      color: rgba(148,163,184,0.6);
+    }
+
+    .footer-copyright span {
+      color: var(--accent-green);
+    }
+
+    .footer-tech-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .footer-tech-pill {
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      border-radius: 100px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: rgba(148,163,184,0.7);
+    }
+
+    /* ============================================================
+       RESPONSIVE — MEDIA QUERIES
+    ============================================================ */
+    @media (max-width: 1024px) {
+      .stats-grid        { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid       { grid-template-columns: 1fr 1fr; gap: 36px; }
+      .footer-brand      { grid-column: 1 / -1; }
+      .footer-brand-desc { max-width: 100%; }
+      .models-grid       { grid-template-columns: 1fr; max-width: 560px; margin-left: auto; margin-right: auto; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links, .nav-cta { display: none; }
+      .nav-toggle         { display: flex; }
+      .nav-inner          { height: 60px; }
+
+      #hero               { padding: 80px 0 50px; }
+      .hero-metrics       { gap: 10px; }
+      .hero-metric        { padding: 8px 14px; font-size: 0.8rem; }
+
+      .problema-grid      { grid-template-columns: 1fr; }
+      .crisp-grid         { grid-template-columns: 1fr; }
+      .models-grid        { grid-template-columns: 1fr; }
+      .stats-grid         { grid-template-columns: 1fr 1fr; }
+      .footer-grid        { grid-template-columns: 1fr; gap: 28px; }
+      .footer-bottom      { flex-direction: column; align-items: flex-start; gap: 12px; }
+
+      .simulator-banner   { padding: 48px 24px; }
+
+      #problema, #metodologia, #comparativa, #simulador { padding: 70px 0; }
+
+      .comparison-table-wrapper { overflow-x: auto; }
+      .comparison-table         { min-width: 560px; }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .hero-cta   { flex-direction: column; align-items: center; }
+      .btn-lg     { width: 100%; justify-content: center; }
+      .simulator-cta { flex-direction: column; align-items: center; }
+      .simulator-cta .btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============================================================
+       LAYER 1 — NAVBAR
+  ============================================================ -->
+  <nav id="navbar">
+    <div class="container">
+      <div class="nav-inner">
+
+        <!-- Logo -->
+        <a class="nav-logo" href="#hero">
+          <div class="nav-logo-row">
+            <span class="nav-logo-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-recycle"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"></path><path d="M11 19h8.2a1.8 1.8 0 0 0 1.6-1 1.8 1.8 0 0 0 0-1.8L17 9"></path><path d="m11 5 3.5 6"></path><path d="m2 13 3-4 3 4"></path><path d="m12 10 3 4 3-4"></path><path d="m17 21 3-4 3 4"></path></svg></span>
+            <span class="nav-logo-text">Project CRS</span>
+          </div>
+          <span class="nav-badge">UFHEC &nbsp;|&nbsp; Machine Learning</span>
+        </a>
+
+        <!-- Desktop nav links -->
+        <ul class="nav-links">
+          <li><a href="#problema">Problema</a></li>
+          <li><a href="#metodologia">CRISP-ML(Q)</a></li>
+          <li><a href="#comparativa">Modelos</a></li>
+          <li><a href="#video">Video</a></li>
+          <li><a href="#simulador">Simulador</a></li>
+          <li><a href="#footer">Entregables</a></li>
+        </ul>
+
+        <!-- Desktop CTA -->
+        <div class="nav-cta">
+          <a class="btn btn-outline" href="https://github.com/feibertciin/Project_ML_CRS.git" target="_blank" rel="noopener">
+            <i class="fab fa-github"></i> GitHub
+          </a>
+          <a class="btn btn-primary" href="https://Project_ML_CRS.streamlit.app" target="_blank" rel="noopener">
+            <i class="fas fa-rocket"></i> Streamlit App
+          </a>
+        </div>
+
+        <!-- Mobile hamburger -->
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+      </div><!-- /nav-inner -->
+
+      <!-- Mobile menu -->
+      <div class="nav-mobile" id="navMobile">
+        <a href="#problema" class="nav-mobile-link">Problema</a>
+        <a href="#metodologia" class="nav-mobile-link">CRISP-ML(Q)</a>
+        <a href="#comparativa" class="nav-mobile-link">Modelos</a>
+        <a href="#video" class="nav-mobile-link">Video</a>
+        <a href="#simulador" class="nav-mobile-link">Simulador</a>
+        <a href="#footer" class="nav-mobile-link">Entregables</a>
+        <div class="nav-mobile-cta">
+          <a class="btn btn-outline" href="https://github.com/feibertciin/Project_ML_CRS.git" target="_blank" rel="noopener">
+            <i class="fab fa-github"></i> GitHub
+          </a>
+          <a class="btn btn-primary" href="https://Project_ML_CRS.streamlit.app" target="_blank" rel="noopener">
+            <i class="fas fa-rocket"></i> Streamlit
+          </a>
+        </div>
+      </div>
+
+    </div><!-- /container -->
+  </nav>
+
+  <!-- ============================================================
+       LAYER 2 — HERO SECTION
+  ============================================================ -->
+  <section id="hero">
+
+    <!-- Background elements -->
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+
+    <!-- Particles -->
+    <div class="particles-container" id="particles"></div>
+
+    <!-- Hero content -->
+    <div class="hero-content">
+
+      <!-- Badge animado -->
+      <div class="hero-badge">
+        <span class="dot"></span>
+        Proyecto de Maestría en IA &nbsp;·&nbsp; UFHEC 2024
+      </div>
+
+      <!-- Title -->
+      <h1 class="hero-title">
+        <span class="line1">Clasificación Inteligente de</span>
+        <span class="line2">Residuos Sólidos</span>
+      </h1>
+
+      <!-- Description -->
+      <p class="hero-desc">
+        Sistema de visión artificial y aprendizaje automático para la clasificación automática
+        de residuos en tiempo real. Combinando <strong>Random Forest</strong> y
+        <strong>MobileNetV2</strong> bajo la metodología <strong>CRISP-ML(Q)</strong>.
+      </p>
+
+      <!-- Floating Metrics -->
+      <div class="hero-metrics">
+        <div class="hero-metric">
+          <span class="metric-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-db"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"></path></svg></span>
+          <span class="metric-value">2,527</span>
+          <span class="metric-label">Imágenes</span>
+        </div>
+        <div class="hero-metric">
+          <span class="metric-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-target"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></span>
+          <span class="metric-value">91.4%</span>
+          <span class="metric-label">Precisión</span>
+        </div>
+        <div class="hero-metric">
+          <span class="metric-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-bolt"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path></svg></span>
+          <span class="metric-value">&lt; 5ms</span>
+          <span class="metric-label">Inferencia</span>
+        </div>
+      </div>
+
+      <!-- CTA Buttons -->
+      <div class="hero-cta">
+        <a class="btn btn-primary btn-lg" href="https://Project_ML_CRS.streamlit.app" target="_blank" rel="noopener">
+          <i class="fas fa-rocket"></i> Probar Demo
+        </a>
+        <a class="btn btn-outline btn-lg" href="https://github.com/feibertciin/Project_ML_CRS.git" target="_blank" rel="noopener">
+          <i class="fab fa-github"></i> Ver Código
+        </a>
+      </div>
+
+      <!-- Tech stack -->
+      <div class="tech-stack">
+        <span class="tech-stack-label">Tecnologías:</span>
+        <span class="tech-badge"><i class="fab fa-python"></i> Python</span>
+        <span class="tech-badge"><i class="fas fa-brain"></i> Scikit-Learn</span>
+        <span class="tech-badge"><i class="fas fa-network-wired"></i> Keras</span>
+        <span class="tech-badge"><i class="fas fa-eye"></i> OpenCV</span>
+        <span class="tech-badge"><i class="fas fa-chart-bar"></i> Streamlit</span>
+      </div>
+
+    </div><!-- /hero-content -->
+  </section>
+
+  <!-- ============================================================
+       LAYER 3 — STATS ROW
+  ============================================================ -->
+  <section id="stats">
+    <div class="container">
+      <div class="stats-grid">
+
+        <div class="stat-card reveal">
+          <div class="stat-label">Dataset Total</div>
+          <div class="stat-number">
+            <span class="counter" data-target="2527" data-suffix="">0</span>
+            <span class="stat-unit">+</span>
+          </div>
+          <div class="stat-desc">Imágenes etiquetadas en 6 categorías principales</div>
+        </div>
+
+        <div class="stat-card reveal">
+          <div class="stat-label">Clases Detectadas</div>
+          <div class="stat-number">
+            <span class="counter" data-target="6" data-suffix="">0</span>
+            <span class="stat-unit">+3</span>
+          </div>
+          <div class="stat-desc">Clases base y subclases de residuos etiquetadas</div>
+        </div>
+
+        <div class="stat-card reveal">
+          <div class="stat-label">Tiempo de Inferencia</div>
+          <div class="stat-number">
+            &lt;<span class="counter" data-target="5" data-suffix="">0</span>
+            <span class="stat-unit">ms</span>
+          </div>
+          <div class="stat-desc">Latencia en clasificación por imagen (MobileNetV2)</div>
+        </div>
+
+        <div class="stat-card reveal">
+          <div class="stat-label">Cobertura de Tests</div>
+          <div class="stat-number">
+            <span class="counter" data-target="100" data-suffix="">0</span>
+            <span class="stat-unit">%</span>
+          </div>
+          <div class="stat-desc">Pipeline CRISP-ML(Q) validado en todas las fases</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       LAYER 4 — PROBLEMA Y JUSTIFICACIÓN
+  ============================================================ -->
+  <section id="problema">
+    <div class="container">
+
+      <div class="section-header">
+        <div class="section-label">Contexto y Motivación</div>
+        <h2 class="section-title">Problema y Justificación</h2>
+        <span class="accent-line"></span>
+        <p class="section-subtitle">
+          La gestión ineficiente de residuos sólidos representa uno de los desafíos ambientales
+          más críticos del siglo XXI. La automatización mediante IA ofrece una solución escalable
+          y precisa para transformar la clasificación manual en un proceso inteligente.
+        </p>
+      </div>
+
+      <div class="problema-grid">
+
+        <div class="problema-card glass-card reveal">
+          <span class="card-emoji"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-alert"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span>
+          <h3 class="card-title">Segregación Manual Ineficiente</h3>
+          <p class="card-text">
+            Los procesos de clasificación manual de residuos presentan altas tasas de error
+            (25-40%), riesgo de contaminación cruzada y costos operativos elevados. La
+            dependencia humana genera cuellos de botella en plantas de reciclaje y limita
+            la escalabilidad del sistema.
+          </p>
+          <span class="card-tag tag-warning"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-alert"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Problemática Crítica</span>
+        </div>
+
+        <div class="problema-card glass-card reveal">
+          <span class="card-emoji"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-cpu"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg></span>
+          <h3 class="card-title">Visión Artificial y ML como Solución</h3>
+          <p class="card-text">
+            Aplicamos técnicas de <strong>Computer Vision</strong> con OpenCV para extracción
+            de características, <strong>Random Forest</strong> para clasificación clásica basada
+            en descriptores, y <strong>MobileNetV2 (Transfer Learning)</strong> para clasificación
+            profunda con alta precisión en tiempo real.
+          </p>
+          <span class="card-tag tag-tech"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-cpu"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg> Solución Técnica</span>
+        </div>
+
+        <div class="problema-card glass-card reveal">
+          <span class="card-emoji"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-leaf"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg></span>
+          <h3 class="card-title">Impacto en ODS y Sostenibilidad</h3>
+          <p class="card-text">
+            El proyecto se alinea con los ODS 11 (Ciudades Sostenibles) y ODS 12 (Producción
+            Responsable) de la ONU. La automatización inteligente puede aumentar las tasas de
+            reciclaje hasta un <strong>35%</strong>, reducir la contaminación de vertederos y
+            generar economía circular en comunidades urbanas y rurales.
+          </p>
+          <span class="card-tag tag-impact"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-leaf"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg> Impacto ODS</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       LAYER 5 — CRISP-ML(Q) METHODOLOGY
+  ============================================================ -->
+  <section id="metodologia">
+    <div class="container">
+
+      <div class="section-header">
+        <div class="section-label">Marco Metodológico</div>
+        <h2 class="section-title">Metodología CRISP-ML(Q)</h2>
+        <span class="accent-line"></span>
+        <p class="section-subtitle">
+          Cross-Industry Standard Process for Machine Learning with Quality Assurance —
+          guía estructurada en 6 fases iterativas para garantizar modelos de ML robustos,
+          reproducibles y de alta calidad.
+        </p>
+      </div>
+
+      <div class="crisp-grid">
+
+        <!-- Phase 1 -->
+        <div class="crisp-card reveal">
+          <span class="crisp-num">01</span>
+          <div class="crisp-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-target"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></div>
+          <div class="crisp-phase">Fase 1</div>
+          <h3 class="crisp-title">Comprensión del Negocio</h3>
+          <p class="crisp-desc">Definición del alcance del proyecto, objetivos de negocio y requisitos de calidad del sistema clasificador.</p>
+          <ul class="crisp-tasks">
+            <li>Definición de KPIs de rendimiento</li>
+            <li>Análisis de stakeholders</li>
+            <li>Requisitos de precisión ≥ 85%</li>
+          </ul>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="crisp-card reveal">
+          <span class="crisp-num">02</span>
+          <div class="crisp-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-db"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"></path></svg></div>
+          <div class="crisp-phase">Fase 2</div>
+          <h3 class="crisp-title">Comprensión de los Datos</h3>
+          <p class="crisp-desc">Recolección, exploración y análisis estadístico del dataset de 2,527 imágenes de residuos en 6 categorías.</p>
+          <ul class="crisp-tasks">
+            <li>Análisis exploratorio (EDA)</li>
+            <li>Balance de clases y distribución</li>
+            <li>Dataset: Kaggle Garbage Classification</li>
+          </ul>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="crisp-card reveal">
+          <span class="crisp-num">03</span>
+          <div class="crisp-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-filter"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg></div>
+          <div class="crisp-phase">Fase 3</div>
+          <h3 class="crisp-title">Preparación de Datos</h3>
+          <p class="crisp-desc">Limpieza, transformación, extracción de características con OpenCV y data augmentation para deep learning.</p>
+          <ul class="crisp-tasks">
+            <li>Extracción HOG, LBP, Color Histograms</li>
+            <li>Normalización y redimensionamiento</li>
+            <li>Augmentation: rotación, flip, zoom</li>
+          </ul>
+        </div>
+
+        <!-- Phase 4 -->
+        <div class="crisp-card reveal">
+          <span class="crisp-num">04</span>
+          <div class="crisp-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-brain"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04Z"></path><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04Z"></path></svg></div>
+          <div class="crisp-phase">Fase 4</div>
+          <h3 class="crisp-title">Modelamiento</h3>
+          <p class="crisp-desc">Entrenamiento paralelo de Random Forest clásico y MobileNetV2 con Transfer Learning pre-entrenado en ImageNet.</p>
+          <ul class="crisp-tasks">
+            <li>Random Forest: 200 estimadores</li>
+            <li>MobileNetV2: fine-tuning 15 épocas</li>
+            <li>Validación cruzada estratificada</li>
+          </ul>
+        </div>
+
+        <!-- Phase 5 -->
+        <div class="crisp-card reveal">
+          <span class="crisp-num">05</span>
+          <div class="crisp-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-chart"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg></div>
+          <div class="crisp-phase">Fase 5</div>
+          <h3 class="crisp-title">Evaluación</h3>
+          <p class="crisp-desc">Evaluación exhaustiva con métricas de clasificación, matrices de confusión y análisis comparativo de ambos modelos.</p>
+          <ul class="crisp-tasks">
+            <li>Accuracy, Precision, Recall, F1</li>
+            <li>Matriz de confusión normalizada</li>
+            <li>Curvas ROC y AUC por clase</li>
+          </ul>
+        </div>
+
+        <!-- Phase 6 -->
+        <div class="crisp-card reveal">
+          <span class="crisp-num">06</span>
+          <div class="crisp-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-rocket"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg></div>
+          <div class="crisp-phase">Fase 6</div>
+          <h3 class="crisp-title">Despliegue</h3>
+          <p class="crisp-desc">Prototipo interactivo en Streamlit con interfaz de usuario para clasificación en tiempo real de nuevas imágenes.</p>
+          <ul class="crisp-tasks">
+            <li>App Streamlit multi-pestaña</li>
+            <li>Upload de imagen y predicción live</li>
+            <li>Visualización de probabilidades</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       LAYER 6 — MODEL COMPARISON
+  ============================================================ -->
+  <section id="comparativa">
+    <div class="container">
+
+      <div class="section-header">
+        <div class="section-label">Resultados</div>
+        <h2 class="section-title">Comparativa de Modelos</h2>
+        <span class="accent-line"></span>
+        <p class="section-subtitle">
+          Evaluación objetiva de dos enfoques complementarios: Machine Learning clásico
+          con Random Forest vs. Deep Learning con MobileNetV2 sobre el mismo conjunto de datos.
+        </p>
+      </div>
+
+      <!-- Model cards -->
+      <div class="models-grid">
+
+        <!-- Random Forest -->
+        <div class="model-card model-card-rf reveal">
+          <div class="model-header">
+            <div class="model-icon model-icon-rf"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-tree"><path d="M12 10v12"></path><path d="M12 2 5 9h4v5h6V9h4z"></path></svg></div>
+            <div>
+              <span class="model-label label-ml">Machine Learning</span><br/>
+              <small style="color:var(--text-secondary);font-size:0.72rem;margin-top:4px;display:block;">
+                <span class="model-streamlit-badge"><i class="fas fa-bolt"></i> Pestaña 1 en Streamlit</span>
+              </small>
+            </div>
+          </div>
+          <h3 class="model-name">Random Forest</h3>
+          <p class="model-desc">
+            Ensamble de 200 árboles de decisión entrenado sobre características extraídas
+            con OpenCV: Histogramas de Color HSV, HOG y LBP. Interpretable y eficiente.
+          </p>
+          <div class="model-metrics">
+            <div class="model-metric-item">
+              <div class="model-metric-val">78.3%</div>
+              <div class="model-metric-lbl">Accuracy</div>
+            </div>
+            <div class="model-metric-item">
+              <div class="model-metric-val">0.76</div>
+              <div class="model-metric-lbl">F1-Score</div>
+            </div>
+            <div class="model-metric-item">
+              <div class="model-metric-val">~12ms</div>
+              <div class="model-metric-lbl">Latencia</div>
+            </div>
+            <div class="model-metric-item">
+              <div class="model-metric-val">Alta</div>
+              <div class="model-metric-lbl">Interpretabilidad</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MobileNetV2 -->
+        <div class="model-card model-card-cnn reveal">
+          <div class="model-header">
+            <div class="model-icon model-icon-cnn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-brain"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04Z"></path><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04Z"></path></svg></div>
+            <div>
+              <span class="model-label label-dl">Deep Learning</span><br/>
+              <small style="color:var(--text-secondary);font-size:0.72rem;margin-top:4px;display:block;">
+                <span class="model-streamlit-badge" style="background:rgba(168,85,247,0.1);border-color:rgba(168,85,247,0.3);color:#c084fc;">
+                  <i class="fas fa-bolt"></i> Pestaña 2 en Streamlit
+                </span>
+              </small>
+            </div>
+          </div>
+          <h3 class="model-name">MobileNetV2</h3>
+          <p class="model-desc">
+            Red convolucional ligera con Transfer Learning desde ImageNet. Fine-tuning
+            en 15 épocas con capas densas personalizadas. Óptimo para clasificación visual.
+          </p>
+          <div class="model-metrics">
+            <div class="model-metric-item">
+              <div class="model-metric-val">91.4%</div>
+              <div class="model-metric-lbl">Accuracy</div>
+            </div>
+            <div class="model-metric-item">
+              <div class="model-metric-val">0.91</div>
+              <div class="model-metric-lbl">F1-Score</div>
+            </div>
+            <div class="model-metric-item">
+              <div class="model-metric-val">&lt; 5ms</div>
+              <div class="model-metric-lbl">Latencia</div>
+            </div>
+            <div class="model-metric-item">
+              <div class="model-metric-val">Alta</div>
+              <div class="model-metric-lbl">Precisión Visual</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Comparison Table -->
+      <div class="comparison-table-wrapper reveal">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Criterio</th>
+              <th><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-tree"><path d="M12 10v12"></path><path d="M12 2 5 9h4v5h6V9h4z"></path></svg> Random Forest</th>
+              <th><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-brain"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04Z"></path><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04Z"></path></svg> MobileNetV2</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Accuracy General</td>
+              <td>78.3%</td>
+              <td style="color:var(--accent-green);font-weight:700;">91.4% <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="svg-check" style="color:var(--accent-green);display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg></td>
+            </tr>
+            <tr>
+              <td>F1-Score Ponderado</td>
+              <td>0.76</td>
+              <td style="color:var(--accent-green);font-weight:700;">0.91 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="svg-check" style="color:var(--accent-green);display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg></td>
+            </tr>
+            <tr>
+              <td>Tiempo de Inferencia</td>
+              <td>~12 ms</td>
+              <td style="color:var(--accent-green);font-weight:700;">&lt; 5 ms <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="svg-check" style="color:var(--accent-green);display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg></td>
+            </tr>
+            <tr>
+              <td>Requerimiento de Datos</td>
+              <td style="color:var(--accent-green);font-weight:700;">Bajo <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="svg-check" style="color:var(--accent-green);display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg></td>
+              <td>Alto (augmentation)</td>
+            </tr>
+            <tr>
+              <td>Interpretabilidad</td>
+              <td style="color:var(--accent-green);font-weight:700;">Alta (feature importance) <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="svg-check" style="color:var(--accent-green);display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg></td>
+              <td>Baja (caja negra)</td>
+            </tr>
+            <tr>
+              <td>Escalabilidad en Producción</td>
+              <td>Moderada</td>
+              <td style="color:var(--accent-green);font-weight:700;">Alta (TFLite, ONNX) <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="svg-check" style="color:var(--accent-green);display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </section>
+
+  
+  <!-- ============================================================
+       LAYER 6.5 — VIDEO DE SUSTENTACIÓN Y SHOWCASE INTERACTIVO
+  ============================================================ -->
+  <section id="video" style="padding: 100px 0; background: var(--bg-primary); position: relative; border-top: 1px solid var(--border-color);">
+    <div class="container">
+
+      <div class="section-header reveal" style="text-align: center; max-width: 760px; margin: 0 auto 50px;">
+        <div class="section-label" style="display: inline-flex; align-items: center; gap: 8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          Sustentación Audiovisual
+        </div>
+        <h2 class="section-title">Video Explicativo del <span class="gradient-text">Proyecto CRS</span></h2>
+        <p class="section-desc">
+          Presentación ejecutiva en español generada con herramientas de IA y masterizada con FFmpeg.
+          Explora la versión en video Full HD o interactúa con el showcase paso a paso.
+        </p>
+      </div>
+
+      <!-- Video Tabs Container -->
+      <div class="video-container glass-card reveal" style="max-width: 1060px; margin: 0 auto; padding: 24px; border-radius: var(--radius-lg); background: rgba(15, 24, 41, 0.7); border: 1px solid rgba(16, 185, 129, 0.25); box-shadow: 0 20px 50px rgba(0,0,0,0.4);">
+        
+        <!-- Tab Navigation -->
+        <div class="video-tabs" style="display: flex; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 14px; flex-wrap: wrap;">
+          <button class="video-tab-btn active" id="tabBtnMp4" onclick="switchVideoTab('mp4')" style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); color: var(--accent-green); padding: 10px 22px; border-radius: 8px; font-weight: 700; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.25s ease;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+            Video Oficial (MP4 Full HD)
+          </button>
+          
+          <button class="video-tab-btn" id="tabBtnInteractive" onclick="switchVideoTab('interactive')" style="background: rgba(255,255,255,0.04); border: 1px solid var(--border-color); color: var(--text-muted); padding: 10px 22px; border-radius: 8px; font-weight: 600; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.25s ease;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+            Showcase Interactivo (video_showcase.html)
+          </button>
+
+          <a href="video/crs_sustentacion.mp4" download="CRS_Sustentacion_UFHEC.mp4" class="btn btn-outline" style="margin-left: auto; font-size: 0.8rem; padding: 8px 16px; display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Descargar MP4 (815 KB)
+          </a>
+        </div>
+
+        <!-- Tab 1: Native MP4 Video Player -->
+        <div id="videoPaneMp4" class="video-pane" style="display: block;">
+          <div style="position: relative; border-radius: 12px; overflow: hidden; background: #060c18; aspect-ratio: 16/9; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);">
+            <video id="mainVideoPlayer" controls preload="metadata" style="width: 100%; height: 100%; object-fit: contain; display: block;" poster="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=1200&q=80">
+              <source src="video/crs_sustentacion.mp4" type="video/mp4">
+              Su navegador no soporta reproducción directa de video HTML5. Por favor utilice el reproductor interactivo o descargue el archivo.
+            </video>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 0.82rem; color: var(--text-muted); flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; gap: 16px; align-items: center;">
+              <span style="display: inline-flex; align-items: center; gap: 5px;"><strong style="color:var(--text-primary);">Resolución:</strong> 1920×1080 (1080p)</span>
+              <span style="display: inline-flex; align-items: center; gap: 5px;"><strong style="color:var(--text-primary);">Duración:</strong> 20 segundos</span>
+              <span style="display: inline-flex; align-items: center; gap: 5px;"><strong style="color:var(--text-primary);">Audio:</strong> AAC Estéreo 48 kHz</span>
+            </div>
+            <span style="color: var(--accent-green); font-weight: 600;">H.264 Universal (yuv420p) · Validado</span>
+          </div>
+        </div>
+
+        <!-- Tab 2: Interactive Showcase Iframe -->
+        <div id="videoPaneInteractive" class="video-pane" style="display: none;">
+          <div style="position: relative; border-radius: 12px; overflow: hidden; background: #060c18; aspect-ratio: 16/9; border: 1px solid var(--border-color);">
+            <iframe src="video/video_showcase.html" style="width: 100%; height: 100%; border: none; display: block;" allow="autoplay" loading="lazy" title="Showcase Interactivo"></iframe>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 0.82rem; color: var(--text-muted);">
+            <span>Reproductor con animación de partículas en Canvas, subtítulos y navegación por escenas del storyboard.</span>
+            <a href="video/video_showcase.html" target="_blank" style="color: var(--accent-cyan); font-weight: 600; text-decoration: none;">Abrir en pestaña nueva &nearr;</a>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       LAYER 7 — SIMULADOR INTERACTIVO
+  ============================================================ -->
+  <section id="simulador">
+    <div class="container">
+
+      <div class="simulator-banner reveal">
+        <div class="simulator-banner-content">
+
+          <div class="section-label" style="margin-left:auto;margin-right:auto;">
+            Demo en Vivo
+          </div>
+
+          <h2 class="simulator-title">
+            Prueba el Clasificador<br/>
+            <span class="gradient-text">en Tiempo Real</span>
+          </h2>
+
+          <p class="simulator-desc">
+            Nuestra aplicación interactiva en Streamlit permite subir cualquier imagen
+            y obtener la predicción instantánea de ambos modelos — Random Forest y MobileNetV2 —
+            con probabilidades, métricas y visualizaciones explicativas.
+          </p>
+
+          <div class="simulator-cta">
+            <a class="btn btn-primary btn-lg" href="https://Project_ML_CRS.streamlit.app" target="_blank" rel="noopener">
+              <i class="fas fa-rocket"></i> Probar en Streamlit
+            </a>
+            <a class="btn btn-outline btn-lg" href="https://github.com/feibertciin/Project_ML_CRS.git" target="_blank" rel="noopener">
+              <i class="fab fa-github"></i> Ver Código
+            </a>
+          </div>
+
+          <div class="simulator-features">
+            <div class="sim-feature">
+              <i class="fas fa-upload"></i>
+              <span>Upload de imagen</span>
+            </div>
+            <div class="sim-feature">
+              <i class="fas fa-bolt"></i>
+              <span>Predicción instantánea</span>
+            </div>
+            <div class="sim-feature">
+              <i class="fas fa-chart-pie"></i>
+              <span>Visualización de probabilidades</span>
+            </div>
+            <div class="sim-feature">
+              <i class="fas fa-layer-group"></i>
+              <span>Ambos modelos comparados</span>
+            </div>
+            <div class="sim-feature">
+              <i class="fas fa-mobile-alt"></i>
+              <span>Responsive y gratuito</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       LAYER 8 — FOOTER
+  ============================================================ -->
+  <footer id="footer">
+    <div class="container">
+      <div class="footer-grid">
+
+        <!-- Col 1: Brand -->
+        <div class="footer-brand">
+          <a class="nav-logo" href="#hero">
+            <div class="nav-logo-row">
+              <span class="nav-logo-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon svg-recycle"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"></path><path d="M11 19h8.2a1.8 1.8 0 0 0 1.6-1 1.8 1.8 0 0 0 0-1.8L17 9"></path><path d="m11 5 3.5 6"></path><path d="m2 13 3-4 3 4"></path><path d="m12 10 3 4 3-4"></path><path d="m17 21 3-4 3 4"></path></svg></span>
+              <span class="nav-logo-text">Project CRS</span>
+            </div>
+            <span class="nav-badge">UFHEC &nbsp;|&nbsp; Machine Learning</span>
+          </a>
+          <p class="footer-brand-desc">
+            Clasificación Inteligente de Residuos Sólidos mediante Machine Learning y
+            Computer Vision. Proyecto final de Maestría en Inteligencia Artificial —
+            Universidad Federico Henríquez y Carvajal (UFHEC), 2024.
+          </p>
+          <div class="footer-social">
+            <a class="social-btn" href="https://github.com/feibertciin/Project_ML_CRS.git" target="_blank" rel="noopener" title="GitHub">
+              <i class="fab fa-github"></i>
+            </a>
+            <a class="social-btn" href="https://Project_ML_CRS.streamlit.app" target="_blank" rel="noopener" title="Streamlit">
+              <i class="fas fa-chart-bar"></i>
+            </a>
+            <a class="social-btn" href="#problema" title="Proyecto">
+              <i class="fas fa-leaf"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Col 2: Documentación -->
+        <div>
+          <h4 class="footer-col-title">Documentación</h4>
+          <ul class="footer-links">
+            <li>
+              <a href="docs/reporte_final.pdf" target="_blank">
+                <i class="fas fa-file-pdf"></i> Reporte Final
+              </a>
+            </li>
+            <li>
+              <a href="docs/presentacion.pdf" target="_blank">
+                <i class="fas fa-file-powerpoint"></i> Presentación
+              </a>
+            </li>
+            <li>
+              <a href="docs/analisis_exploratorio.html" target="_blank">
+                <i class="fas fa-chart-line"></i> Análisis EDA
+              </a>
+            </li>
+            <li>
+              <a href="docs/metodologia_crisp.pdf" target="_blank">
+                <i class="fas fa-sitemap"></i> CRISP-ML(Q) Docs
+              </a>
+            </li>
+            <li>
+              <a href="docs/manual_usuario.pdf" target="_blank">
+                <i class="fas fa-book"></i> Manual de Usuario
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Código y Prototipo -->
+        <div>
+          <h4 class="footer-col-title">Código y Prototipo</h4>
+          <ul class="footer-links">
+            <li>
+              <a href="notebooks/01_eda.ipynb" target="_blank">
+                <i class="fas fa-jupyter fa-brands"></i> Notebook EDA
+              </a>
+            </li>
+            <li>
+              <a href="notebooks/02_random_forest.ipynb" target="_blank">
+                <i class="fas fa-tree"></i> Random Forest
+              </a>
+            </li>
+            <li>
+              <a href="notebooks/03_mobilenetv2.ipynb" target="_blank">
+                <i class="fas fa-network-wired"></i> MobileNetV2
+              </a>
+            </li>
+            <li>
+              <a href="app.py" target="_blank">
+                <i class="fas fa-code"></i> app.py (Streamlit)
+              </a>
+            </li>
+            <li>
+              <a href="requirements.txt" target="_blank">
+                <i class="fas fa-list-check"></i> requirements.txt
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Repositorio y Streamlit -->
+        <div>
+          <h4 class="footer-col-title">Repositorio</h4>
+          <ul class="footer-links">
+            <li>
+              <a href="https://github.com/feibertciin/Project_ML_CRS.git" target="_blank" rel="noopener">
+                <i class="fab fa-github"></i> GitHub Repo
+              </a>
+            </li>
+            <li>
+              <a href="https://Project_ML_CRS.streamlit.app" target="_blank" rel="noopener">
+                <i class="fas fa-rocket"></i> Streamlit App
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/feibertciin/Project_ML_CRS/releases" target="_blank" rel="noopener">
+                <i class="fas fa-tag"></i> Releases / Versiones
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/feibertciin/Project_ML_CRS/issues" target="_blank" rel="noopener">
+                <i class="fas fa-bug"></i> Issues / Bugs
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/feibertciin/Project_ML_CRS/wiki" target="_blank" rel="noopener">
+                <i class="fas fa-book-open"></i> Wiki
+              </a>
+            </li>
+          </ul>
+        </div>
+
+      </div><!-- /footer-grid -->
+
+      <!-- Footer bottom bar -->
+      <div class="footer-bottom">
+        <p class="footer-copyright">
+          &copy; 2024 <span>UFHEC — Maestría en Inteligencia Artificial</span>.
+          Project CRS — Clasificación Inteligente de Residuos Sólidos.
+          Desarrollado para fines académicos y de investigación.
+        </p>
+        <div class="footer-tech-row">
+          <span class="footer-tech-pill">Python 3.11</span>
+          <span class="footer-tech-pill">Scikit-Learn</span>
+          <span class="footer-tech-pill">Keras / TF</span>
+          <span class="footer-tech-pill">OpenCV</span>
+          <span class="footer-tech-pill">Streamlit</span>
+          <span class="footer-tech-pill">GitHub Pages</span>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       JAVASCRIPT
+  ============================================================ -->
+  <script>
+    // ============================================================
+    // 0. VIDEO TABS SWITCHER (Global)
+    // ============================================================
+    window.switchVideoTab = function(tab) {
+      const btnMp4 = document.getElementById('tabBtnMp4');
+      const btnInteractive = document.getElementById('tabBtnInteractive');
+      const paneMp4 = document.getElementById('videoPaneMp4');
+      const paneInteractive = document.getElementById('videoPaneInteractive');
+      const video = document.getElementById('mainVideoPlayer');
+
+      if (!btnMp4 || !btnInteractive || !paneMp4 || !paneInteractive) {
+        console.error('Video tabs elements not found');
+        return;
+      }
+
+      if (tab === 'mp4') {
+        btnMp4.style.background = 'rgba(16,185,129,0.15)';
+        btnMp4.style.borderColor = 'rgba(16,185,129,0.4)';
+        btnMp4.style.color = 'var(--accent-green)';
+        btnInteractive.style.background = 'rgba(255,255,255,0.04)';
+        btnInteractive.style.borderColor = 'var(--border-color)';
+        btnInteractive.style.color = 'var(--text-muted)';
+        paneMp4.style.display = 'block';
+        paneInteractive.style.display = 'none';
+      } else {
+        btnInteractive.style.background = 'rgba(16,185,129,0.15)';
+        btnInteractive.style.borderColor = 'rgba(16,185,129,0.4)';
+        btnInteractive.style.color = 'var(--accent-green)';
+        btnMp4.style.background = 'rgba(255,255,255,0.04)';
+        btnMp4.style.borderColor = 'var(--border-color)';
+        btnMp4.style.color = 'var(--text-muted)';
+        paneMp4.style.display = 'none';
+        paneInteractive.style.display = 'block';
+        if (video) video.pause();
+      }
+    };
+
+    // ============================================================
+    // 1. PARTICLES GENERATOR
+    // ============================================================
+    (function generateParticles() {
+      const container = document.getElementById('particles');
+      const particleData = [
+        { w: 3, h: 3, top: '12%', left: '8%',  dur: '5s',  delay: '0s'   },
+        { w: 2, h: 2, top: '22%', left: '18%', dur: '7s',  delay: '1s'   },
+        { w: 5, h: 5, top: '8%',  left: '35%', dur: '6s',  delay: '0.5s' },
+        { w: 3, h: 3, top: '18%', left: '52%', dur: '8s',  delay: '2s'   },
+        { w: 4, h: 4, top: '5%',  left: '70%', dur: '5.5s',delay: '1.5s' },
+        { w: 2, h: 2, top: '28%', left: '82%', dur: '7.5s',delay: '0.8s' },
+        { w: 6, h: 6, top: '45%', left: '5%',  dur: '9s',  delay: '3s'   },
+        { w: 3, h: 3, top: '55%', left: '14%', dur: '6.5s',delay: '1.2s' },
+        { w: 2, h: 2, top: '65%', left: '28%', dur: '8.5s',delay: '0.3s' },
+        { w: 4, h: 4, top: '72%', left: '40%', dur: '7s',  delay: '2.5s' },
+        { w: 3, h: 3, top: '60%', left: '58%', dur: '6s',  delay: '1.8s' },
+        { w: 5, h: 5, top: '48%', left: '75%', dur: '9.5s',delay: '0.6s' },
+        { w: 2, h: 2, top: '78%', left: '88%', dur: '7s',  delay: '3.2s' },
+        { w: 4, h: 4, top: '35%', left: '92%', dur: '8s',  delay: '1s'   },
+        { w: 3, h: 3, top: '82%', left: '62%', dur: '6s',  delay: '2.8s' },
+        { w: 2, h: 2, top: '88%', left: '20%', dur: '7.5s',delay: '0.9s' },
+        { w: 5, h: 5, top: '92%', left: '45%', dur: '5s',  delay: '1.4s' },
+        { w: 3, h: 3, top: '15%', left: '95%', dur: '8s',  delay: '2.1s' },
+        { w: 2, h: 2, top: '40%', left: '48%', dur: '6.5s',delay: '0.4s' },
+        { w: 4, h: 4, top: '30%', left: '30%', dur: '10s', delay: '1.7s' },
+      ];
+
+      particleData.forEach(function(p) {
+        var el = document.createElement('div');
+        el.className = 'particle';
+        el.style.cssText = [
+          'width:' + p.w + 'px',
+          'height:' + p.h + 'px',
+          'top:' + p.top,
+          'left:' + p.left,
+          'animation-duration:' + p.dur,
+          'animation-delay:' + p.delay,
+          'opacity:' + (0.4 + Math.random() * 0.5),
+        ].join(';');
+        container.appendChild(el);
+      });
+    })();
+
+    // ============================================================
+    // 2. NAVBAR SCROLL EFFECT
+    // ============================================================
+    (function navbarScroll() {
+      var navbar = document.getElementById('navbar');
+      var lastScroll = 0;
+
+      window.addEventListener('scroll', function() {
+        var scrollY = window.scrollY;
+
+        if (scrollY > 60) {
+          navbar.classList.add('scrolled');
+        } else {
+          navbar.classList.remove('scrolled');
+        }
+
+        lastScroll = scrollY;
+      }, { passive: true });
+    })();
+
+    // ============================================================
+    // 3. MOBILE NAV TOGGLE
+    // ============================================================
+    (function mobileNav() {
+      var toggle  = document.getElementById('navToggle');
+      var mobileMenu = document.getElementById('navMobile');
+
+      toggle.addEventListener('click', function() {
+        var isOpen = mobileMenu.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', isOpen);
+      });
+
+      // Close on link click
+      document.querySelectorAll('.nav-mobile-link').forEach(function(link) {
+        link.addEventListener('click', function() {
+          mobileMenu.classList.remove('open');
+        });
+      });
+    })();
+
+    // ============================================================
+    // 4. SMOOTH SCROLL — Anchor links
+    // ============================================================
+    (function smoothScroll() {
+      document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+        anchor.addEventListener('click', function(e) {
+          var targetId = this.getAttribute('href').slice(1);
+          if (!targetId) return;
+          var target = document.getElementById(targetId);
+          if (!target) return;
+          e.preventDefault();
+          var navHeight = document.getElementById('navbar').offsetHeight;
+          var targetTop = target.getBoundingClientRect().top + window.scrollY - navHeight - 16;
+          window.scrollTo({ top: targetTop, behavior: 'smooth' });
+        });
+      });
+    })();
+
+    // ============================================================
+    // 5. COUNTER ANIMATION (IntersectionObserver)
+    // ============================================================
+    (function counterAnimation() {
+      var counters = document.querySelectorAll('.counter');
+      var duration = 1800; // ms
+
+      function animateCounter(el) {
+        if (el.dataset.animated) return;
+        el.dataset.animated = '1';
+
+        var target  = parseInt(el.dataset.target, 10);
+        var suffix  = el.dataset.suffix || '';
+        var start   = 0;
+        var startTime = null;
+
+        // Easing: ease-out cubic
+        function easeOut(t) {
+          return 1 - Math.pow(1 - t, 3);
+        }
+
+        function step(timestamp) {
+          if (!startTime) startTime = timestamp;
+          var elapsed  = timestamp - startTime;
+          var progress = Math.min(elapsed / duration, 1);
+          var current  = Math.round(easeOut(progress) * target);
+
+          el.textContent = current.toLocaleString() + suffix;
+
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          } else {
+            el.textContent = target.toLocaleString() + suffix;
+          }
+        }
+
+        requestAnimationFrame(step);
+      }
+
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            animateCounter(entry.target);
+          }
+        });
+      }, { threshold: 0.4 });
+
+      counters.forEach(function(el) {
+        observer.observe(el);
+      });
+    })();
+
+    // ============================================================
+    // 6. SCROLL REVEAL (Fade-In Up)
+    // ============================================================
+    (function scrollReveal() {
+      var revealEls = document.querySelectorAll('.reveal');
+
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry, idx) {
+          if (entry.isIntersecting) {
+            // Stagger delay for sibling elements
+            var siblings = Array.from(entry.target.parentNode.querySelectorAll('.reveal'));
+            var index = siblings.indexOf(entry.target);
+            var delay = Math.min(index * 80, 400); // max 400ms stagger
+
+            setTimeout(function() {
+              entry.target.classList.add('visible');
+            }, delay);
+
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+      revealEls.forEach(function(el) {
+        observer.observe(el);
+      });
+    })();
+
+    // ============================================================
+    // 7. ACTIVE NAV LINK (Scroll Spy)
+    // ============================================================
+    (function scrollSpy() {
+      var sections = ['problema', 'metodologia', 'comparativa', 'simulador', 'footer'];
+      var navLinks = document.querySelectorAll('.nav-links a');
+
+      function getActiveSection() {
+        var scrollY = window.scrollY + 100;
+        for (var i = sections.length - 1; i >= 0; i--) {
+          var el = document.getElementById(sections[i]);
+          if (el && el.offsetTop <= scrollY) {
+            return '#' + sections[i];
+          }
+        }
+        return '#hero';
+      }
+
+      function updateActiveLink() {
+        var active = getActiveSection();
+        navLinks.forEach(function(link) {
+          link.style.color = link.getAttribute('href') === active
+            ? 'var(--accent-green)'
+            : '';
+        });
+      }
+
+      window.addEventListener('scroll', updateActiveLink, { passive: true });
+      updateActiveLink();
+    })();
+  </script>
+
+</body>
+</html>

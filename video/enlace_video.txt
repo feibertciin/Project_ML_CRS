@@ -1,0 +1,34 @@
+# Video de Sustentación — Clasificación Inteligente de Residuos Sólidos (CRS)
+# Proyecto Final Machine Learning | UFHEC — Maestría en IA | Noviembre 2026
+# Investigador: Feibert Alirio Giraldo
+
+## Estado del Video
+✅ GENERADO EXITOSAMENTE
+
+## Archivo Local
+C:\Users\Feibert\OneDrive\Documents\UFHEC\UFHEC_ML\Project_ML\video\crs_sustentacion.mp4
+
+## Descripción del Video
+Duración: 20 segundos | Resolución: 1920×1080 (Full HD) | FPS: 30 | Codec: H.264 + AAC
+
+## Escenas
+1. [0s-3s]   Hook Estadístico — "2,527 imágenes → 4 variables → 6 categorías"
+2. [3s-6s]   Logo y Título — CRS + Badge UFHEC
+3. [6s-11s]  Pipeline ETL — 5 pasos del flujo de datos y extracción de características
+4. [11s-16s] Comparativa de Modelos — Random Forest 62.8% vs MobileNetV2 91.4%
+5. [16s-20s] CTA y Cierre — GitHub, Streamlit, GitHub Pages + Badge UFHEC
+
+## URLs del Proyecto
+- GitHub:        https://github.com/feibertciin/Project_ML_CRS
+- Streamlit App: https://Project_ML_CRS.streamlit.app
+- Landing Page:  https://feibertciin.github.io/Project_ML_CRS
+- Notebook:      Project_ML_CRS.ipynb (en raíz del repositorio)
+
+## Música
+Track: happy-beats-business-moves-vol-9-by-ende-dot-app.mp3 (114.84 BPM)
+Volumen: 0.25 (ducked) | Fade-in: 0.5s | Fade-out: 1.0s
+
+## Generado con
+Pillow (frames PNG 1920×1080) + FFmpeg (renderizado H.264) + Python 3.11
+Script: video/generate_video.py
+Fecha: Noviembre 2026
