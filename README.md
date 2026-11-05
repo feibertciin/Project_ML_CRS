@@ -468,7 +468,7 @@ El video de presentación del proyecto recorre todos los aspectos técnicos y me
 | Resultados | 9:30 – 11:00 | Métricas, comparativa y conclusiones |
 | Cierre | 11:00 – 12:00 | Conclusiones y trabajo futuro |
 
-📺 **[Ver Video de Sustentación](#)** *(enlace disponible próximamente)*
+📺 **[Ver Video de Sustentación](#)** *[(enlace disponible próximamente)](https://feibertciin.github.io/Project_ML_CRS/)*
 
 > *El video completo de la sustentación oral del proyecto será publicado en este espacio una vez sea grabado y subido a la plataforma de presentación de la maestría.*
 
