@@ -590,6 +590,6 @@ SOFTWARE.
 
 **Hecho con ❤️ para la Maestría en IA — UFHEC | 2025**
 
-[🌐 Landing Page](https://feibertciin.github.io/Project_ML_CRS) · [🖥️ App Streamlit](https://Project_ML_CRS.streamlit.app) · [📂 Repositorio](https://github.com/feibertciin/Project_ML_CRS)
+[🌐 Landing Page](https://feibertciin.github.io/Project_ML_CRS) · [🖥️ App Streamlit](https://project-ml-crs.streamlit.app/) · [📂 Repositorio](https://github.com/feibertciin/Project_ML_CRS)
 
 </div>
